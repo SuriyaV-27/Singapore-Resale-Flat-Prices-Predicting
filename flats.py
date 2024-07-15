@@ -8,7 +8,6 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import streamlit as st
 
-# Data Collection and Preprocessing
 @st.cache_data
 def load_data(uploaded_file):
     data = pd.read_csv(uploaded_file, dtype={'block': str, 'street_name': str, 'storey_range': str, 'flat_model': str}, low_memory=False)
@@ -22,7 +21,6 @@ def preprocess_data(data):
     data = pd.get_dummies(data, columns=categorical_features, drop_first=True)
     return data
 
-# Feature Engineering
 def feature_engineering(data):
     features = ['floor_area_sqm', 'lease_age']
     features += [col for col in data.columns if col.startswith(('town_', 'flat_type_', 'flat_model_'))]
@@ -42,7 +40,6 @@ def train_model(X, y):
     r2 = r2_score(y_test, y_pred)*100
     return model, mae, mse, rmse, r2
 
-# Streamlit Web Application
 st.title("Singapore Resale Price Predictor")
 
 uploaded_file = st.file_uploader("Upload Resale Flat Prices Dataset (CSV)", type="csv")
@@ -59,20 +56,11 @@ if uploaded_file is not None:
     st.write(f"**R² Score:** {r2:.2f}")
 
     st.subheader("Make a Prediction")
-    # town = st.selectbox("Town", data['town'].unique() if 'town' in data.columns else [''])
-    # flat_type = st.selectbox("Flat Type", data['flat_type'].unique() if 'flat_type' in data.columns else [''])
-    # flat_model = st.selectbox("Flat Model", data['flat_model'].unique() if 'flat_model' in data.columns else [''])
     floor_area_sqm = st.number_input("Floor Area (sqm)", min_value=30.0, max_value=200.0, step=1.0)
     lease_commence_date = st.number_input("Lease Commence Year", min_value=1990, max_value=2024, step=1)
     lease_age = 2024 - lease_commence_date
 
-    # Create the input data DataFrame for prediction
     input_data = pd.DataFrame([[floor_area_sqm, lease_age]], columns=['floor_area_sqm', 'lease_age'])
-
-    # Add dummy variables for categorical features
-    # for feature, value in [('town', town), ('flat_type', flat_type), ('flat_model', flat_model)]:
-    #     if value and value in data[f"{feature}"].unique():
-    #         input_data[f"{feature}_{value}"] = 1
 
     # Ensure all columns in the model are present in the input data
     for col in X.columns:
